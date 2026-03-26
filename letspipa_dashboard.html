@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Let's Pipa 2026 — Dashboard Financeiro</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --brand: #C94B25;
+  --brand-light: #E8683A;
+  --dark: #141414;
+  --surface: #1e1e1e;
+  --surface2: #262626;
+  --surface3: #2e2e2e;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0ede8;
+  --text2: #a8a49e;
+  --text3: #6b6760;
+  --green: #4ade80;
+  --green-bg: rgba(74,222,128,0.12);
+  --green-text: #22c55e;
+  --amber: #f59e0b;
+  --amber-bg: rgba(245,158,11,0.12);
+  --red: #f87171;
+  --red-bg: rgba(248,113,113,0.12);
+  --blue: #60a5fa;
+  --blue-bg: rgba(96,165,250,0.12);
+  --purple: #a78bfa;
+  --purple-bg: rgba(167,139,250,0.12);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--dark);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+}
+.topbar {
+  background: var(--brand);
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo {
+  width: 38px; height: 38px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 13px; color: #fff;
+  flex-shrink: 0;
+  letter-spacing: -0.5px;
+}
+.tb-info { flex: 1; }
+.tb-title { color: #fff; font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+.tb-sub { color: rgba(255,255,255,0.65); font-size: 11px; margin-top: 1px; }
+.nav { display: flex; gap: 4px; }
+.nav-btn {
+  padding: 7px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: transparent;
+  color: rgba(255,255,255,0.75);
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.nav-btn.active { background: rgba(255,255,255,0.22); color: #fff; border-color: rgba(255,255,255,0.4); }
+.live-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px rgba(74,222,128,0.6);
+  animation: pulse 2s infinite;
+  margin-left: 4px;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+.sync-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sync-bar input {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  outline: none;
+}
+.sync-bar input:focus { border-color: var(--brand); }
+.sync-bar input::placeholder { color: var(--text3); }
+.btn-sync {
+  padding: 8px 20px;
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+.btn-sync:hover { opacity: 0.9; }
+.btn-sync:disabled { opacity: 0.5; cursor: not-allowed; }
+.sync-status { font-size: 12px; color: var(--text3); white-space: nowrap; }
+.sync-status.ok { color: var(--green-text); }
+.sync-status.err { color: var(--red); }
+.sync-status.loading { color: var(--amber); }
+
+.content { padding: 20px 24px; }
+.page { display: none; animation: fadein 0.2s ease; }
+.page.active { display: block; }
+@keyframes fadein { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+
+.grid4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; margin-bottom: 16px; }
+.grid2 { display: grid; grid-template-columns: 1.65fr 1fr; gap: 14px; margin-bottom: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+.grid2b { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+.kpi-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; font-weight: 400; }
+.kpi-value { font-size: 28px; font-weight: 600; color: var(--text); line-height: 1; margin-bottom: 10px; letter-spacing: -1px; }
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-green { background: var(--green-bg); color: var(--green); }
+.badge-orange { background: var(--amber-bg); color: var(--amber); }
+.badge-red { background: var(--red-bg); color: var(--red); }
+.badge-blue { background: var(--blue-bg); color: var(--blue); }
+.badge-purple { background: var(--purple-bg); color: var(--purple); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+.card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 14px; letter-spacing: -0.2px; }
+.section-label { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--text3); margin-bottom: 12px; }
+
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.bar-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.bar-name { font-size: 12px; color: var(--text2); width: 80px; flex-shrink: 0; }
+.bar-track { flex: 1; height: 5px; background: var(--surface3); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; transition: width 1s cubic-bezier(0.4,0,0.2,1); }
+.bar-val { font-size: 12px; font-weight: 600; color: var(--text); width: 62px; text-align: right; flex-shrink: 0; }
+
+.divider { height: 1px; background: var(--border); margin: 14px 0; }
+
+.result-line { display: flex; justify-content: space-between; align-items: center; padding: 10px 0 0; }
+.ind-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.ind-row:last-child { border: none; }
+.ind-label { color: var(--text2); }
+.ind-val { font-weight: 600; color: var(--text); }
+
+.status-line { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+
+.lote-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.lote-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.lote-name { font-size: 11px; color: var(--text2); width: 55px; flex-shrink: 0; }
+.lote-price { font-size: 12px; font-weight: 600; color: var(--text); margin-left: auto; white-space: nowrap; }
+
+.patro-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.patro-row:last-child { border: none; }
+.pill { padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.pill-green { background: var(--green-bg); color: var(--green); }
+.pill-orange { background: var(--amber-bg); color: var(--amber); }
+.pill-red { background: var(--red-bg); color: var(--red); }
+
+.lineup-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.lineup-row:last-child { border: none; }
+.lineup-date { color: var(--text3); font-family: 'DM Mono', monospace; font-size: 11px; }
+.lineup-artist { color: var(--text); font-weight: 600; text-align: right; }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.data-table th { padding: 9px 10px; text-align: left; color: var(--text3); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; background: var(--surface2); border-bottom: 1px solid var(--border2); }
+.data-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); color: var(--text); }
+.data-table tr:last-child td { border: none; }
+.data-table tr.total-row td { background: var(--surface2); font-weight: 600; }
+.data-table tr.section-row td { background: rgba(201,75,37,0.1); color: var(--brand-light); font-weight: 600; font-size: 11px; letter-spacing: .04em; }
+
+.waterfall { display: flex; gap: 8px; align-items: flex-end; height: 150px; }
+.wf-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; }
+.wf-bar-wrap { flex: 1; display: flex; align-items: flex-end; width: 100%; }
+.wf-bar { width: 100%; border-radius: 6px 6px 0 0; display: flex; align-items: center; justify-content: center; min-height: 12px; }
+.wf-val { font-size: 10px; font-weight: 600; writing-mode: vertical-rl; transform: rotate(180deg); color: #fff; }
+.wf-label { font-size: 10px; color: var(--text3); text-align: center; line-height: 1.3; }
+
+.loading-overlay {
+  position: fixed; inset: 0;
+  background: rgba(20,20,20,0.9);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  flex-direction: column;
+  gap: 16px;
+}
+.loading-overlay.show { display: flex; }
+.spinner {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border2);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { color: var(--text2); font-size: 14px; }
+
+.dre-section { background: rgba(201,75,37,0.08); }
+.dre-total { background: var(--surface2); font-weight: 600; }
+.dre-result { background: rgba(74,222,128,0.08); }
+
+@media (max-width: 900px) {
+  .grid4 { grid-template-columns: repeat(2, 1fr); }
+  .grid2, .grid2b { grid-template-columns: 1fr; }
+  .grid3 { grid-template-columns: 1fr; }
+  .nav { display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Conectando ao Google Sheets...</div>
+</div>
+
+<div class="topbar">
+  <div class="logo">LP</div>
+  <div class="tb-info">
+    <div class="tb-title">Let's Pipa 2026 — Dashboard Financeiro</div>
+    <div class="tb-sub">Réveillon · Tibau do Sul, RN · 27–31/Dez</div>
+  </div>
+  <div class="nav">
+    <button class="nav-btn active" onclick="goPage('macro',this)">Macro</button>
+    <button class="nav-btn" onclick="goPage('receitas',this)">Receitas</button>
+    <button class="nav-btn" onclick="goPage('custos',this)">Custos</button>
+    <button class="nav-btn" onclick="goPage('dre',this)">DRE</button>
+    <button class="nav-btn" onclick="goPage('patrocinios',this)">Patrocínios</button>
+  </div>
+  <div class="live-dot" id="live-dot" style="background:#6b6760;box-shadow:none"></div>
+</div>
+
+<div class="sync-bar">
+  <span style="font-size:12px;color:var(--text2);white-space:nowrap;font-weight:500">Sheets:</span>
+  <input type="text" id="sheets-url" placeholder="Cole o link do Google Sheets aqui..." />
+  <button class="btn-sync" onclick="connectSheets()">Conectar</button>
+  <button class="btn-sync" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text2)" onclick="refreshData()">↻ Atualizar</button>
+  <span class="sync-status" id="sync-status">Não conectado</span>
+</div>
+
+<div class="content">
+
+<!-- MACRO -->
+<div class="page active" id="page-macro">
+  <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:16px">
+    <div class="kpi">
+      <div class="kpi-label">Receita bruta orçada</div>
+      <div class="kpi-value" id="kpi-receita">R$ 20,4M</div>
+      <span class="badge badge-green">+16% vs 2025</span>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Total custos evento</div>
+      <div class="kpi-value" id="kpi-custos" style="color:var(--red)">R$ 12,6M</div>
+      <span class="badge badge-red" id="kpi-custos-badge">17 centros</span>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Resultado líquido</div>
+      <div class="kpi-value" id="kpi-resultado" style="color:var(--green)">R$ 7,3M</div>
+      <span class="badge badge-green" id="kpi-margem-badge">Margem 36,6%</span>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Pacotes vendidos</div>
+      <div class="kpi-value"><span id="kpi-vendidos">0</span> <span style="font-size:16px;color:var(--text3)">/ 2.300</span></div>
+      <span class="badge badge-orange">Abre Maio/26</span>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Ticket médio</div>
+      <div class="kpi-value" id="kpi-tm">R$ 5.459</div>
+      <span class="badge badge-green">Meta R$ 5.500 ✓</span>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Composição receita × custo orçado</div>
+      <div style="display:flex;gap:24px">
+        <div style="flex:1">
+          <div class="section-label">Receitas (<span id="lbl-receita-total">R$ 20,4M</span>)</div>
+          <div class="bar-row"><div class="bar-dot" style="background:#C94B25"></div><div class="bar-name">Pacotes</div><div class="bar-track"><div class="bar-fill" id="bar-pacotes" style="width:62%;background:#C94B25"></div></div><div class="bar-val" id="val-pacotes">R$ 12,6M</div></div>
+          <div class="bar-row"><div class="bar-dot" style="background:#534AB7"></div><div class="bar-name">Patrocínios</div><div class="bar-track"><div class="bar-fill" id="bar-patros" style="width:15%;background:#534AB7"></div></div><div class="bar-val" id="val-patros">R$ 3,1M</div></div>
+          <div class="bar-row"><div class="bar-dot" style="background:#E8683A"></div><div class="bar-name">Avulsos</div><div class="bar-track"><div class="bar-fill" id="bar-avulsos" style="width:22%;background:#E8683A"></div></div><div class="bar-val" id="val-avulsos">R$ 4,5M</div></div>
+          <div class="bar-row"><div class="bar-dot" style="background:#1D9E75"></div><div class="bar-name">Let's Boat</div><div class="bar-track"><div class="bar-fill" id="bar-boat" style="width:1%;background:#1D9E75"></div></div><div class="bar-val" id="val-boat">R$ 200K</div></div>
+        </div>
+        <div style="flex:1">
+          <div class="section-label">Custos (<span id="lbl-custo-total">R$ 12,6M</span>)</div>
+          <div class="bar-row"><div class="bar-dot" style="background:#C94B25"></div><div class="bar-name">Artístico</div><div class="bar-track"><div class="bar-fill" id="bar-artistico" style="width:100%;background:#C94B25"></div></div><div class="bar-val" id="val-artistico">R$ 4,1M</div></div>
+          <div class="bar-row"><div class="bar-dot" style="background:#378ADD"></div><div class="bar-name">Staff</div><div class="bar-track"><div class="bar-fill" id="bar-staff" style="width:65%;background:#378ADD"></div></div><div class="bar-val" id="val-staff">R$ 2,7M</div></div>
+          <div class="bar-row"><div class="bar-dot" style="background:#888"></div><div class="bar-name">Infra</div><div class="bar-track"><div class="bar-fill" id="bar-infra" style="width:52%;background:#888"></div></div><div class="bar-val" id="val-infra">R$ 2,1M</div></div>
+          <div class="bar-row"><div class="bar-dot" style="background:#BA7517"></div><div class="bar-name">Outros</div><div class="bar-track"><div class="bar-fill" id="bar-outros-c" style="width:90%;background:#BA7517"></div></div><div class="bar-val" id="val-outros-c">R$ 3,7M</div></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="result-line">
+        <span style="font-size:12px;color:var(--text2)">Resultado líquido orçado</span>
+        <span style="font-size:20px;font-weight:700;color:var(--green);letter-spacing:-0.5px" id="resultado-display">+ R$ 7.262.612</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Indicadores chave</div>
+      <div class="ind-row"><span class="ind-label">Capacidade total</span><span class="ind-val">2.800 pax</span></div>
+      <div class="ind-row"><span class="ind-label">Break-even</span><span class="ind-val" id="ind-breakeven">1.776 pax</span></div>
+      <div class="ind-row"><span class="ind-label">Custo por pax</span><span class="ind-val" id="ind-cpp">R$ 4.495</span></div>
+      <div class="ind-row"><span class="ind-label">Artístico / custo total</span><span class="ind-val" id="ind-pct-artistico">32,6%</span></div>
+      <div class="ind-row"><span class="ind-label">Patrocínio / receita</span><span class="ind-val" id="ind-pct-patro">15,2%</span></div>
+      <div class="ind-row"><span class="ind-label">Lotes abertos</span><span class="ind-val">0 de 6</span></div>
+      <div class="ind-row"><span class="ind-label">Abertura vendas</span><span class="ind-val">Maio/26</span></div>
+      <div class="status-line">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 8px rgba(74,222,128,0.5)"></div>
+        <span style="font-size:13px;font-weight:600;color:var(--green)">No azul — orçamento aprovado</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid3">
+    <div class="card">
+      <div class="card-title">Precificação — 5 lotes</div>
+      <div id="lotes-bars">
+        <div class="lote-row"><div class="lote-dot" style="background:#185FA5"></div><div class="lote-name">L1 Mai</div><div class="bar-track" style="background:var(--surface3);flex:1"><div class="bar-fill" style="width:38%;background:#185FA5"></div></div><div class="lote-price">R$ 3.900/3.600</div></div>
+        <div class="lote-row"><div class="lote-dot" style="background:#1D9E75"></div><div class="lote-name">L2 Jun</div><div class="bar-track" style="background:var(--surface3);flex:1"><div class="bar-fill" style="width:50%;background:#1D9E75"></div></div><div class="lote-price">R$ 4.700/4.300</div></div>
+        <div class="lote-row"><div class="lote-dot" style="background:#BA7517"></div><div class="lote-name">L3 Ago</div><div class="bar-track" style="background:var(--surface3);flex:1"><div class="bar-fill" style="width:63%;background:#BA7517"></div></div><div class="lote-price">R$ 5.500/5.000</div></div>
+        <div class="lote-row"><div class="lote-dot" style="background:#D4537E"></div><div class="lote-name">L4 Out</div><div class="bar-track" style="background:var(--surface3);flex:1"><div class="bar-fill" style="width:76%;background:#D4537E"></div></div><div class="lote-price">R$ 6.300/5.700</div></div>
+        <div class="lote-row"><div class="lote-dot" style="background:#534AB7"></div><div class="lote-name">L5 Nov</div><div class="bar-track" style="background:var(--surface3);flex:1"><div class="bar-fill" style="width:90%;background:#534AB7"></div></div><div class="lote-price">R$ 7.200/6.500</div></div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">Masc mais caro · TM geral: <strong id="lbl-tm-lotes" style="color:var(--text2)">R$ 5.459</strong></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Patrocínios — follow-up</div>
+      <div id="patros-followup">
+        <div class="patro-row"><span style="font-size:13px;font-weight:600">AMBEV</span><span class="pill pill-green">Fechado R$ 2,8M</span></div>
+        <div class="patro-row"><span style="font-size:12px">Campari & Aperol</span><span class="pill pill-orange">Em conversa R$ 350K</span></div>
+        <div class="patro-row"><span style="font-size:12px">Suntory</span><span class="pill pill-orange">Em conversa R$ 265K</span></div>
+        <div class="patro-row"><span style="font-size:12px">Ballena</span><span class="pill pill-orange">Em conversa R$ 200K</span></div>
+        <div class="patro-row"><span style="font-size:12px">Diageo</span><span class="pill pill-orange">Aguardando R$ 200K</span></div>
+        <div class="patro-row"><span style="font-size:12px">Engov</span><span class="pill pill-orange">Em conversa R$ 180K</span></div>
+        <div class="patro-row"><span style="font-size:12px">Red Bull</span><span class="pill pill-red">Declinado</span></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+        <span style="color:var(--text3)">Meta: R$ 3,1M</span>
+        <span style="font-weight:700;color:var(--green)">Fechado: R$ 2,8M (90%)</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Line-up 2026</div>
+      <div class="lineup-row"><span class="lineup-date">27/Dez</span><span class="lineup-artist">Pedro Sampaio</span></div>
+      <div class="lineup-row"><span class="lineup-date">28/Dez</span><span class="lineup-artist">Nattan · Ariel B</span></div>
+      <div class="lineup-row"><span class="lineup-date">29/Dez</span><span class="lineup-artist">Menos é Mais + TH · DJ GBR</span></div>
+      <div class="lineup-row"><span class="lineup-date">29/Dez</span><span class="lineup-artist">Matheus Fernandes (After)</span></div>
+      <div class="lineup-row"><span class="lineup-date">30/Dez</span><span class="lineup-artist">Gringo (internacional)</span></div>
+      <div class="lineup-row"><span class="lineup-date">31/Dez</span><span class="lineup-artist">Felipe Amorim · Syon Trio</span></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">Support: Kuhnen · Ocer · Pedro Almeida · Samhara</div>
+    </div>
+  </div>
+</div>
+
+<!-- RECEITAS -->
+<div class="page" id="page-receitas">
+  <div class="grid4">
+    <div class="kpi"><div class="kpi-label">Receita total orçada</div><div class="kpi-value" id="r-total">R$ 20,4M</div><span class="badge badge-green">5 fontes</span></div>
+    <div class="kpi"><div class="kpi-label">Receita pacotes</div><div class="kpi-value" id="r-pacotes">R$ 12,6M</div><span class="badge badge-orange">61,6% do total</span></div>
+    <div class="kpi"><div class="kpi-label">Ticket médio</div><div class="kpi-value" id="r-tm">R$ 5.459</div><span class="badge badge-green">Meta R$ 5.500 ✓</span></div>
+    <div class="kpi"><div class="kpi-label">Avulsos (meta)</div><div class="kpi-value">R$ 4,5M</div><span class="badge badge-blue">500 pax × 5 dias</span></div>
+  </div>
+  <div class="grid2b">
+    <div class="card">
+      <div class="card-title">Detalhamento lotes</div>
+      <table class="data-table" id="lotes-table">
+        <thead><tr><th>Lote</th><th>Abertura</th><th style="color:#a78bfa">Masc</th><th style="color:#f9a8d4">Fem</th><th>Qtd</th><th>Receita Obj.</th></tr></thead>
+        <tbody>
+          <tr><td>Lote 1 — Early Bird</td><td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Mai/26</td><td style="color:#a78bfa;font-weight:600">R$ 3.900</td><td style="color:#f9a8d4">R$ 3.600</td><td>276</td><td style="font-weight:600">R$ 1,03M</td></tr>
+          <tr><td>Lote 2</td><td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Jun/26</td><td style="color:#a78bfa;font-weight:600">R$ 4.700</td><td style="color:#f9a8d4">R$ 4.300</td><td>414</td><td style="font-weight:600">R$ 1,85M</td></tr>
+          <tr><td>Lote 3</td><td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Ago/26</td><td style="color:#a78bfa;font-weight:600">R$ 5.500</td><td style="color:#f9a8d4">R$ 5.000</td><td>506</td><td style="font-weight:600">R$ 2,64M</td></tr>
+          <tr><td>Lote 4</td><td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Out/26</td><td style="color:#a78bfa;font-weight:600">R$ 6.300</td><td style="color:#f9a8d4">R$ 5.700</td><td>575</td><td style="font-weight:600">R$ 3,43M</td></tr>
+          <tr><td>Lote 5 — Last Call</td><td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Nov/26</td><td style="color:#a78bfa;font-weight:600">R$ 7.200</td><td style="color:#f9a8d4">R$ 6.500</td><td>529</td><td style="font-weight:600">R$ 3,60M</td></tr>
+          <tr class="total-row"><td colspan="4">Total / TM R$ 5.459</td><td>2.300</td><td style="color:var(--green)">R$ 12,56M</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Avulsos por dia</div>
+      <table class="data-table">
+        <thead><tr><th>Dia</th><th>Meta pax</th><th>Receita Obj.</th></tr></thead>
+        <tbody>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px">27/Dez</td><td>500</td><td style="font-weight:600">R$ 900K</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px">28/Dez</td><td>500</td><td style="font-weight:600">R$ 900K</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px">29/Dez</td><td>500</td><td style="font-weight:600">R$ 900K</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px">30/Dez</td><td>500</td><td style="font-weight:600">R$ 900K</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px">31/Dez</td><td>500</td><td style="font-weight:600">R$ 900K</td></tr>
+          <tr class="total-row"><td>Total</td><td>2.500</td><td style="color:var(--green)">R$ 4,5M</td></tr>
+        </tbody>
+      </table>
+      <div class="divider"></div>
+      <div class="card-title">Let's Boat</div>
+      <div class="ind-row"><span class="ind-label">Receita orçada</span><span class="ind-val">R$ 200.000</span></div>
+      <div class="ind-row"><span class="ind-label">Capacidade estimada</span><span class="ind-val">200 pessoas</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOS -->
+<div class="page" id="page-custos">
+  <div class="grid4">
+    <div class="kpi"><div class="kpi-label">Total custos orçado</div><div class="kpi-value" style="color:var(--red)" id="c-total">R$ 12,6M</div><span class="badge badge-red">17 centros</span></div>
+    <div class="kpi"><div class="kpi-label">Custo por pax</div><div class="kpi-value" id="c-cpp">R$ 4.495</div><span class="badge badge-blue">base 2.800 pax</span></div>
+    <div class="kpi"><div class="kpi-label">Artístico / total</div><div class="kpi-value" id="c-pct-art">32,6%</div><span class="badge badge-orange">maior centro</span></div>
+    <div class="kpi"><div class="kpi-label">Realizado</div><div class="kpi-value" id="c-realizado">R$ 0</div><span class="badge badge-orange">Atualizar na planilha</span></div>
+  </div>
+  <div class="grid2b">
+    <div class="card">
+      <div class="card-title">Custos por centro — orçado vs realizado</div>
+      <div id="custos-bars">
+        <div class="bar-row"><div class="bar-dot" style="background:#C94B25"></div><div class="bar-name">Artístico</div><div class="bar-track" style="background:var(--surface3)"><div class="bar-fill" style="width:100%;background:#C94B25"></div></div><div class="bar-val" id="cv-artistico">R$ 4,1M</div></div>
+        <div class="bar-row"><div class="bar-dot" style="background:#378ADD"></div><div class="bar-name">Staff+Equipe</div><div class="bar-track" style="background:var(--surface3)"><div class="bar-fill" style="width:65%;background:#378ADD"></div></div><div class="bar-val" id="cv-staff">R$ 2,7M</div></div>
+        <div class="bar-row"><div class="bar-dot" style="background:#534AB7"></div><div class="bar-name">Infraestrutura</div><div class="bar-track" style="background:var(--surface3)"><div class="bar-fill" style="width:52%;background:#534AB7"></div></div><div class="bar-val" id="cv-infra">R$ 2,1M</div></div>
+        <div class="bar-row"><div class="bar-dot" style="background:#BA7517"></div><div class="bar-name">A&B</div><div class="bar-track" style="background:var(--surface3)"><div class="bar-fill" style="width:23%;background:#BA7517"></div></div><div class="bar-val" id="cv-ab">R$ 945K</div></div>
+        <div class="bar-row"><div class="bar-dot" style="background:#1D9E75"></div><div class="bar-name">Equip. Técn.</div><div class="bar-track" style="background:var(--surface3)"><div class="bar-fill" style="width:17%;background:#1D9E75"></div></div><div class="bar-val" id="cv-equip">R$ 699K</div></div>
+        <div class="bar-row"><div class="bar-dot" style="background:#D4537E"></div><div class="bar-name">Patro. entr.</div><div class="bar-track" style="background:var(--surface3)"><div class="bar-fill" style="width:15%;background:#D4537E"></div></div><div class="bar-val" id="cv-patro">R$ 604K</div></div>
+        <div class="bar-row"><div class="bar-dot" style="background:#aaa"></div><div class="bar-name">Fretes</div><div class="bar-track" style="background:var(--surface3)"><div class="bar-fill" style="width:13%;background:#aaa"></div></div><div class="bar-val" id="cv-fretes">R$ 527K</div></div>
+        <div class="bar-row"><div class="bar-dot" style="background:#555"></div><div class="bar-name">Outros</div><div class="bar-track" style="background:var(--surface3)"><div class="bar-fill" style="width:22%;background:#555"></div></div><div class="bar-val" id="cv-outros">R$ 980K</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Distribuição % dos custos</div>
+      <div class="ind-row"><span class="ind-label">Artístico (line-up)</span><span class="ind-val" style="color:#C94B25">32,6%</span></div>
+      <div class="ind-row"><span class="ind-label">Staff + Serviços</span><span class="ind-val" style="color:#378ADD">21,3%</span></div>
+      <div class="ind-row"><span class="ind-label">Infraestrutura</span><span class="ind-val" style="color:#534AB7">16,8%</span></div>
+      <div class="ind-row"><span class="ind-label">A&B</span><span class="ind-val" style="color:#BA7517">7,5%</span></div>
+      <div class="ind-row"><span class="ind-label">Equip. Técnicos</span><span class="ind-val">5,6%</span></div>
+      <div class="ind-row"><span class="ind-label">Patrocínio entregas</span><span class="ind-val">4,8%</span></div>
+      <div class="ind-row"><span class="ind-label">Outros centros</span><span class="ind-val">11,4%</span></div>
+      <div class="divider"></div>
+      <div class="card-title">Despesas fixas anuais — informativo</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Não impactam o resultado do evento</div>
+      <div class="ind-row"><span class="ind-label">Galpão Kipreço</span><span class="ind-val" id="fix-galpao">R$ 94K</span></div>
+      <div class="ind-row"><span class="ind-label">Escritório</span><span class="ind-val" id="fix-escritorio">R$ 23K</span></div>
+      <div class="ind-row"><span class="ind-label">Social Media</span><span class="ind-val" id="fix-socialmedia">R$ 20K</span></div>
+      <div class="ind-row"><span class="ind-label">Total anual</span><span class="ind-val" id="fix-total" style="color:var(--amber)">R$ 1,51M</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- DRE -->
+<div class="page" id="page-dre">
+  <div class="grid4">
+    <div class="kpi"><div class="kpi-label">Receita bruta</div><div class="kpi-value" id="dre-receita">R$ 20,4M</div></div>
+    <div class="kpi"><div class="kpi-label">Total custos</div><div class="kpi-value" style="color:var(--red)" id="dre-custos">R$ 12,6M</div></div>
+    <div class="kpi"><div class="kpi-label">Resultado</div><div class="kpi-value" style="color:var(--green)" id="dre-resultado">R$ 7,3M</div></div>
+    <div class="kpi"><div class="kpi-label">Margem líquida</div><div class="kpi-value" style="color:var(--green)" id="dre-margem">36,6%</div></div>
+  </div>
+  <div class="grid2b">
+    <div class="card">
+      <div class="card-title">DRE — orçado vs realizado</div>
+      <table class="data-table">
+        <thead><tr><th>Descrição</th><th>Orçado</th><th>Realizado</th><th>Variação</th></tr></thead>
+        <tbody id="dre-table-body">
+          <tr class="section-row"><td colspan="4">+ Receitas brutas</td></tr>
+          <tr><td>Pacotes (2.300 × TM)</td><td id="dre-r-pacotes">R$ 12,56M</td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">—</td></tr>
+          <tr><td>Avulsos (500 × 5d × R$1.800)</td><td>R$ 4,50M</td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">—</td></tr>
+          <tr><td>Patrocínios</td><td>R$ 3,10M</td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">—</td></tr>
+          <tr><td>Let's Boat</td><td>R$ 200K</td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">—</td></tr>
+          <tr class="total-row"><td>Total receita bruta</td><td style="color:var(--amber)">R$ 20,36M</td><td style="color:var(--text3)">R$ 0</td><td style="color:var(--red)">-R$ 20,36M</td></tr>
+          <tr class="section-row"><td colspan="4">(-) Impostos sobre receita</td></tr>
+          <tr><td>ISS / PIS / COFINS</td><td>R$ 0</td><td style="color:var(--text3)">—</td><td style="color:var(--text3)">—</td></tr>
+          <tr class="total-row"><td>Receita líquida</td><td>R$ 20,36M</td><td style="color:var(--text3)">R$ 0</td><td></td></tr>
+          <tr class="section-row"><td colspan="4">(-) Custos do Réveillon</td></tr>
+          <tr><td>Artístico (line-up)</td><td style="color:var(--red)">R$ 4,11M</td><td style="color:var(--text3)">—</td><td></td></tr>
+          <tr><td>Staff + Equipe</td><td style="color:var(--red)">R$ 2,68M</td><td style="color:var(--text3)">—</td><td></td></tr>
+          <tr><td>Infraestrutura</td><td style="color:var(--red)">R$ 2,12M</td><td style="color:var(--text3)">—</td><td></td></tr>
+          <tr><td>Demais centros</td><td style="color:var(--red)">R$ 3,68M</td><td style="color:var(--text3)">—</td><td></td></tr>
+          <tr class="total-row"><td>Total custos</td><td style="color:var(--red)">R$ 12,59M</td><td style="color:var(--text3)">R$ 0</td><td></td></tr>
+          <tr style="background:rgba(74,222,128,0.08)"><td style="font-weight:700">Resultado líquido</td><td style="color:var(--green);font-weight:700;font-size:14px">+ R$ 7.262.612</td><td style="color:var(--text3)">R$ 0</td><td></td></tr>
+          <tr style="background:rgba(74,222,128,0.08)"><td style="font-weight:700">Margem líquida</td><td style="color:var(--green);font-weight:700">36,6%</td><td style="color:var(--text3)">—</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Cascata — Receita → Resultado</div>
+      <div class="waterfall">
+        <div class="wf-col">
+          <div class="wf-bar-wrap"><div class="wf-bar" style="height:100%;background:#C94B25"><span class="wf-val">R$ 20,4M</span></div></div>
+          <div class="wf-label">Receita bruta</div>
+        </div>
+        <div class="wf-col">
+          <div class="wf-bar-wrap"><div class="wf-bar" style="height:2%;background:#f87171"><span class="wf-val" style="font-size:8px">R$ 0</span></div></div>
+          <div class="wf-label">Impostos</div>
+        </div>
+        <div class="wf-col">
+          <div class="wf-bar-wrap"><div class="wf-bar" style="height:62%;background:#f87171"><span class="wf-val">R$ 12,6M</span></div></div>
+          <div class="wf-label">Custos</div>
+        </div>
+        <div class="wf-col">
+          <div class="wf-bar-wrap"><div class="wf-bar" style="height:36%;background:#1D9E75"><span class="wf-val">R$ 7,3M</span></div></div>
+          <div class="wf-label">Resultado</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="card-title">Indicadores do resultado</div>
+      <div class="ind-row"><span class="ind-label">Break-even</span><span class="ind-val" id="dre-breakeven">1.776 pax</span></div>
+      <div class="ind-row"><span class="ind-label">Custo por pax</span><span class="ind-val" id="dre-cpp">R$ 4.495</span></div>
+      <div class="ind-row"><span class="ind-label">Margem bruta</span><span class="ind-val" id="dre-margem2">36,6%</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PATROCÍNIOS -->
+<div class="page" id="page-patrocinios">
+  <div class="grid4">
+    <div class="kpi"><div class="kpi-label">Meta total</div><div class="kpi-value" id="p-meta">R$ 3,1M</div><span class="badge badge-blue">8 marcas</span></div>
+    <div class="kpi"><div class="kpi-label">Fechado</div><div class="kpi-value" style="color:var(--green)" id="p-fechado">R$ 2,8M</div><span class="badge badge-green">90% da meta</span></div>
+    <div class="kpi"><div class="kpi-label">Em negociação</div><div class="kpi-value" style="color:var(--amber)" id="p-negoc">R$ 1,18M</div><span class="badge badge-orange">5 marcas</span></div>
+    <div class="kpi"><div class="kpi-label">Declinado</div><div class="kpi-value" style="color:var(--red)" id="p-declinado">R$ 120K</div><span class="badge badge-red">Red Bull</span></div>
+  </div>
+  <div class="grid2b">
+    <div class="card">
+      <div class="card-title">Follow-up detalhado</div>
+      <table class="data-table" id="patros-table">
+        <thead><tr><th>Marca</th><th>Cota</th><th>Contrato</th><th>Recebido</th><th>Saldo</th><th>Status</th></tr></thead>
+        <tbody id="patros-table-body">
+          <tr><td style="font-weight:600">AMBEV</td><td style="color:var(--text3)">Beyond</td><td>R$ 2.800K</td><td style="color:var(--text3)">R$ 0</td><td>R$ 2.800K</td><td><span class="pill pill-green">Fechado</span></td></tr>
+          <tr><td>Campari & Aperol</td><td style="color:var(--text3)">Beyond</td><td>R$ 350K</td><td style="color:var(--text3)">R$ 0</td><td>R$ 350K</td><td><span class="pill pill-orange">Em conversa</span></td></tr>
+          <tr><td>Suntory</td><td style="color:var(--text3)">Horizon</td><td>R$ 265K</td><td style="color:var(--text3)">R$ 0</td><td>R$ 265K</td><td><span class="pill pill-orange">Em conversa</span></td></tr>
+          <tr><td>Ballena</td><td style="color:var(--text3)">Flow</td><td>R$ 200K</td><td style="color:var(--text3)">R$ 0</td><td>R$ 200K</td><td><span class="pill pill-orange">Em conversa</span></td></tr>
+          <tr><td>Diageo</td><td style="color:var(--text3)">Flow</td><td>R$ 200K</td><td style="color:var(--text3)">R$ 0</td><td>R$ 200K</td><td><span class="pill pill-orange">Aguardando</span></td></tr>
+          <tr><td>Engov</td><td style="color:var(--text3)">Basic</td><td>R$ 180K</td><td style="color:var(--text3)">R$ 0</td><td>R$ 180K</td><td><span class="pill pill-orange">Em conversa</span></td></tr>
+          <tr><td>Red Bull</td><td style="color:var(--text3)">Flow</td><td>R$ 120K</td><td style="color:var(--text3)">R$ 0</td><td>R$ 120K</td><td><span class="pill pill-red">Declinado</span></td></tr>
+          <tr><td>Chilli Beans</td><td style="color:var(--text3)">Basic</td><td>R$ 60K</td><td style="color:var(--text3)">R$ 0</td><td>R$ 60K</td><td><span class="pill pill-orange">Em conversa</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Cotas de patrocínio</div>
+      <div class="ind-row"><span style="font-weight:700;color:#C94B25">Beyond</span><span class="ind-val" style="font-size:12px">R$ 400K + 10 pacotes + 2 quartos</span></div>
+      <div class="ind-row"><span style="font-weight:700;color:#534AB7">Horizon</span><span class="ind-val" style="font-size:12px">R$ 250K + 6 pacotes + 1 quarto</span></div>
+      <div class="ind-row"><span style="font-weight:700;color:#1D9E75">Flow</span><span class="ind-val" style="font-size:12px">R$ 150K + 4 pacotes</span></div>
+      <div class="ind-row"><span style="font-weight:700;color:var(--text3)">Basic</span><span class="ind-val" style="font-size:12px">R$ 100K + 2 pacotes</span></div>
+      <div class="divider"></div>
+      <div class="card-title">Distribuição por status</div>
+      <div class="bar-row"><div class="bar-dot" style="background:var(--green)"></div><div class="bar-name">Fechado</div><div class="bar-track" style="background:var(--surface3)"><div class="bar-fill" style="width:67%;background:#1D9E75"></div></div><div class="bar-val" style="color:var(--green)">67%</div></div>
+      <div class="bar-row"><div class="bar-dot" style="background:var(--amber)"></div><div class="bar-name">Em conversa</div><div class="bar-track" style="background:var(--surface3)"><div class="bar-fill" style="width:25%;background:#BA7517"></div></div><div class="bar-val" style="color:var(--amber)">25%</div></div>
+      <div class="bar-row"><div class="bar-dot" style="background:#E8683A"></div><div class="bar-name">Aguardando</div><div class="bar-track" style="background:var(--surface3)"><div class="bar-fill" style="width:5%;background:#E8683A"></div></div><div class="bar-val">5%</div></div>
+      <div class="bar-row"><div class="bar-dot" style="background:var(--red)"></div><div class="bar-name">Declinado</div><div class="bar-track" style="background:var(--surface3)"><div class="bar-fill" style="width:3%;background:#E24B4A"></div></div><div class="bar-val" style="color:var(--red)">3%</div></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const SHEET_ID = '1uNh6vFFlzfomDgBXkZXZ4XvGaL4IwpKoaDs9o1iDnh0';
+let currentSheetId = SHEET_ID;
+
+document.getElementById('sheets-url').value = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit`;
+
+function extractSheetId(url) {
+  const m = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  return m ? m[1] : null;
+}
+
+function fmtM(v) {
+  if (isNaN(v) || v === null) return '—';
+  const abs = Math.abs(v);
+  if (abs >= 1e6) return (v < 0 ? '-' : '') + 'R$ ' + (abs/1e6).toFixed(2).replace('.',',') + 'M';
+  if (abs >= 1e3) return (v < 0 ? '-' : '') + 'R$ ' + Math.round(abs/1e3).toLocaleString('pt-BR') + 'K';
+  return (v < 0 ? '-' : '') + 'R$ ' + Math.round(abs).toLocaleString('pt-BR');
+}
+
+function fmtFull(v) {
+  if (isNaN(v) || v === null) return '—';
+  const abs = Math.abs(v);
+  if (abs >= 1e6) return (v < 0 ? '-' : '') + 'R$ ' + (abs/1e6).toFixed(2).replace('.',',') + 'M';
+  return (v < 0 ? '-' : '') + 'R$ ' + Math.round(abs).toLocaleString('pt-BR');
+}
+
+function fmtPct(v) {
+  if (isNaN(v) || v === null) return '—';
+  return (v * 100).toFixed(1).replace('.',',') + '%';
+}
+
+async function fetchSheet(sheetId, tabName) {
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(tabName)}`;
+  const res = await fetch(url);
+  const text = await res.text();
+  const json = JSON.parse(text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*)\)/)[1]);
+  const rows = json.table.rows;
+  const cols = json.table.cols.map(c => c.label);
+  return rows.map(row => {
+    const obj = {};
+    cols.forEach((col, i) => {
+      obj[col] = row.c[i] ? (row.c[i].v !== null ? row.c[i].v : null) : null;
+    });
+    return obj;
+  });
+}
+
+async function connectSheets() {
+  const url = document.getElementById('sheets-url').value.trim();
+  const id = extractSheetId(url);
+  if (!id) {
+    setStatus('Link inválido — cole o link completo do Google Sheets', 'err');
+    return;
+  }
+  currentSheetId = id;
+  await refreshData();
+}
+
+async function refreshData() {
+  showLoading('Buscando dados do Google Sheets...');
+  setStatus('Carregando...', 'loading');
+  try {
+    const [dre, lotes, patros, custos] = await Promise.all([
+      fetchSheet(currentSheetId, 'LK_DRE'),
+      fetchSheet(currentSheetId, 'LK_LOTES'),
+      fetchSheet(currentSheetId, 'LK_PATROCINIOS'),
+      fetchSheet(currentSheetId, 'LK_CUSTOS'),
+    ]);
+    updateDashboard(dre, lotes, patros, custos);
+    setStatus('Atualizado agora · ' + new Date().toLocaleTimeString('pt-BR'), 'ok');
+    document.getElementById('live-dot').style.background = '#4ade80';
+    document.getElementById('live-dot').style.boxShadow = '0 0 8px rgba(74,222,128,0.6)';
+  } catch(e) {
+    setStatus('Erro ao conectar — verifique se a planilha está pública', 'err');
+    document.getElementById('live-dot').style.background = '#f87171';
+    document.getElementById('live-dot').style.boxShadow = 'none';
+    console.error(e);
+  }
+  hideLoading();
+}
+
+function updateDashboard(dre, lotes, patros, custos) {
+  const findDRE = (desc) => dre.find(r => r.descricao === desc || r.Descrição === desc);
+
+  const rTotalRow = findDRE('Total Receita') || findDRE('Total receita bruta');
+  const cTotalRow = findDRE('Total Custos') || findDRE('Total custos');
+  const resultRow = findDRE('Resultado Evento') || findDRE('Resultado líquido');
+  const margemRow = findDRE('Margem (%)') || findDRE('Margem líquida');
+  const pacotesRow = findDRE('Pacotes');
+  const avulsosRow = findDRE('Avulsos');
+  const patrosRow = findDRE('Patrocínios');
+  const boatRow = findDRE("Let's Boat");
+  const artisticoRow = findDRE('Artístico') || findDRE('Artístico (line-up)');
+  const staffRow = findDRE('Staff + Equipe') || findDRE('Staff');
+  const infraRow = findDRE('Infraestrutura');
+
+  const rTotal = rTotalRow ? (rTotalRow.orcado || rTotalRow.Orçado || 0) : 20355300;
+  const cTotal = cTotalRow ? Math.abs(cTotalRow.orcado || cTotalRow.Orçado || 0) : 12587388;
+  const result = resultRow ? (resultRow.orcado || resultRow.Orçado || 0) : 7767912;
+  const margem = margemRow ? (margemRow.orcado || margemRow.Orçado || 0) : 0.366;
+
+  const vPacotes = pacotesRow ? (pacotesRow.orcado || pacotesRow.Orçado || 0) : 12555300;
+  const vPatros = patrosRow ? (patrosRow.orcado || patrosRow.Orçado || 0) : 3100000;
+  const vAvulsos = avulsosRow ? (avulsosRow.orcado || avulsosRow.Orçado || 0) : 4500000;
+  const vBoat = boatRow ? (boatRow.orcado || boatRow.Orçado || 0) : 200000;
+  const vArtistico = artisticoRow ? Math.abs(artisticoRow.orcado || artisticoRow.Orçado || 0) : 4109930;
+  const vStaff = staffRow ? Math.abs(staffRow.orcado || staffRow.Orçado || 0) : 2684428;
+  const vInfra = infraRow ? Math.abs(infraRow.orcado || infraRow.Orçado || 0) : 2117620;
+  const vOutrosC = cTotal - vArtistico - vStaff - vInfra;
+
+  const lotesData = lotes.filter(r => {
+    const loteVal = r.lote || r.Lote || Object.values(r)[0] || '';
+    return loteVal && !loteVal.toString().toUpperCase().includes('TOTAL');
+  });
+
+  console.log('LK_LOTES colunas:', lotes.length > 0 ? Object.keys(lotes[0]) : 'vazio');
+  console.log('LK_LOTES primeira linha:', lotes[0]);
+
+  const getField = (row, ...keys) => {
+    for (const k of keys) {
+      if (row[k] !== undefined && row[k] !== null) return row[k];
+    }
+    return 0;
+  };
+
+  const vendidosTotal = lotesData.reduce((a,r) => a + gf(r,'vendidos_total','Vendidos Total','vendidos'),0);
+  const receitaObjTotal = lotesData.reduce((a,r) => a + gf(r,'receita_obj','Receita Obj','Receita Obj.'),0);
+  const qtdTotal = lotesData.reduce((a,r) => a + gf(r,'qtd_meta','Qtd Pacotes','qtd','Qtd'),0) || 2300;
+  const tm = receitaObjTotal > 0 ? receitaObjTotal / qtdTotal : 5459;
+
+  console.log('receitaObjTotal:', receitaObjTotal, '| qtdTotal:', qtdTotal, '| tm:', tm);
+
+  updateLotesBars(lotesData, receitaObjTotal);
+  updateLotesTable(lotesData, qtdTotal, receitaObjTotal, tm);
+
+  const patroFechado = patros.filter(r => (r.patro_status||'').toLowerCase().includes('fechado')).reduce((a,r)=>a+(r.patro_valor_orc||0),0);
+  const patroMeta = patros.filter(r => !(r.patro_marca||'').toString().toUpperCase().includes('TOTAL')).reduce((a,r)=>a+(r.patro_valor_orc||0),0);
+  const patroNegoc = patros.filter(r => (r.patro_status||'').toLowerCase().includes('conversa') || (r.patro_status||'').toLowerCase().includes('aguardando')).reduce((a,r)=>a+(r.patro_valor_orc||0),0);
+  const patroDeclinado = patros.filter(r => (r.patro_status||'').toLowerCase().includes('declinado')).reduce((a,r)=>a+(r.patro_valor_orc||0),0);
+
+  const custoTotal = custos.filter(r => !(r.custo_centro||'').toString().toUpperCase().includes('TOTAL')).reduce((a,r)=>a+(r.custo_orc||0),0);
+  const custoArtistico = custos.find(r=>(r.custo_centro||'').toLowerCase().includes('artístico') || (r.custo_centro||'').toLowerCase().includes('artistico'));
+  const vCA = custoArtistico ? (custoArtistico.custo_orc||0) : vArtistico;
+  const cUsado = custoTotal || cTotal;
+
+  const custoGalpao = custos.find(r=>(r.custo_centro||'').toLowerCase().includes('galpão') || (r.custo_centro||'').toLowerCase().includes('galpao'));
+  const custoEscritorio = custos.find(r=>(r.custo_centro||'').toLowerCase().includes('escritório') || (r.custo_centro||'').toLowerCase().includes('escritorio'));
+  const custoSocialMedia = custos.find(r=>(r.custo_centro||'').toLowerCase().includes('social') || (r.custo_centro||'').toLowerCase().includes('valentina'));
+
+  // Break-even: (Custo total - Patrocínio garantido R$2M - Avulsos garantidos R$2,5M) / Ticket médio
+  const patroGarantido = 2000000;
+  const avulsosGarantidos = 2500000;
+  const custoResidual = cUsado - patroGarantido - avulsosGarantidos;
+  const tmPonderado = 0;
+  const breakEven = tm > 0 ? Math.ceil(custoResidual / tm) : 1481;
+
+  // Despesas fixas do LK_CUSTOS (aba tem custo_centro = despesas fixas também)
+  const vGalpao = custoGalpao ? (custoGalpao.custo_orc||0) : 94312;
+  const vEscritorio = custoEscritorio ? (custoEscritorio.custo_orc||0) : 22555;
+  const vSocialMedia = custoSocialMedia ? (custoSocialMedia.custo_orc||0) : 20000;
+  const vFixTotal = vGalpao + vEscritorio + vSocialMedia;
+
+  setText('kpi-receita', fmtM(rTotal));
+  setText('kpi-custos', fmtM(cUsado));
+  setText('kpi-resultado', fmtM(result));
+  setText('kpi-margem-badge', 'Margem ' + fmtPct(margem));
+  setText('kpi-vendidos', vendidosTotal.toLocaleString('pt-BR'));
+  setText('kpi-tm', fmtFull(tm));
+  setText('lbl-receita-total', fmtM(rTotal));
+  setText('lbl-custo-total', fmtM(cUsado));
+  setText('resultado-display', '+ ' + fmtM(result));
+  setText('lbl-tm-lotes', fmtFull(tm));
+  setText('ind-breakeven', breakEven.toLocaleString('pt-BR') + ' pax');
+  setText('ind-cpp', fmtFull(Math.round(cUsado / 2800)));
+  setText('ind-pct-artistico', fmtPct(vCA / cUsado));
+  setText('ind-pct-patro', fmtPct(patroMeta / rTotal));
+  setText('fix-galpao', fmtFull(vGalpao));
+  setText('fix-escritorio', fmtFull(vEscritorio));
+  setText('fix-socialmedia', fmtFull(vSocialMedia));
+  setText('fix-total', fmtM(vFixTotal));
+  setText('dre-breakeven', breakEven.toLocaleString('pt-BR') + ' pax');
+  setText('dre-cpp', fmtFull(Math.round(cUsado / 2800)));
+  setText('dre-margem2', fmtPct(margem));
+  setText('r-total', fmtM(rTotal));
+  setText('r-pacotes', fmtM(vPacotes));
+  setText('r-tm', fmtFull(tm));
+  setText('c-total', fmtM(cUsado));
+  setText('c-cpp', fmtFull(Math.round(cUsado / 2800)));
+  setText('c-pct-art', fmtPct(vCA / cUsado));
+  setText('dre-receita', fmtM(rTotal));
+  setText('dre-custos', fmtM(cUsado));
+  setText('dre-resultado', fmtM(result));
+  setText('dre-margem', fmtPct(margem));
+  setText('p-meta', fmtM(patroMeta));
+  setText('p-fechado', fmtM(patroFechado));
+  setText('p-negoc', fmtM(patroNegoc));
+  setText('p-declinado', fmtM(patroDeclinado));
+
+  setBar('bar-pacotes', 'val-pacotes', vPacotes, rTotal, vPacotes);
+  setBar('bar-patros', 'val-patros', vPatros, rTotal, vPatros);
+  setBar('bar-avulsos', 'val-avulsos', vAvulsos, rTotal, vAvulsos);
+  setBar('bar-boat', 'val-boat', vBoat, rTotal, vBoat);
+  setBar('bar-artistico', 'val-artistico', vArtistico, vArtistico, vArtistico);
+  setBar('bar-staff', 'val-staff', vStaff, vArtistico, vStaff);
+  setBar('bar-infra', 'val-infra', vInfra, vArtistico, vInfra);
+  setBar('bar-outros-c', 'val-outros-c', vOutrosC > 0 ? vOutrosC : 3675430, vArtistico * 1.1, vOutrosC > 0 ? vOutrosC : 3675430);
+
+  updatePatrosTable(patros);
+}
+
+function setBar(barId, valId, value, max, rawVal) {
+  const bar = document.getElementById(barId);
+  const val = document.getElementById(valId);
+  if (bar) bar.style.width = Math.max(1, Math.round(value/max*100)) + '%';
+  if (val) val.textContent = fmtM(rawVal);
+}
+
+function setText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+function gf(r,...keys){for(const k of keys){if(r[k]!=null&&r[k]!==undefined&&r[k]!=='')return Number(r[k])||0;}return 0;}
+function gfStr(r,...keys){for(const k of keys){if(r[k]!=null&&r[k]!=='')return String(r[k]);}return '';}
+
+function updateLotesBars(lotesData, receitaMax) {
+  const cores = ['#185FA5','#1D9E75','#BA7517','#D4537E','#534AB7'];
+  const nomes = ['L1 Mai','L2 Jun','L3 Ago','L4 Out','L5 Nov'];
+  const container = document.getElementById('lotes-bars');
+  if (!container || lotesData.length === 0) return;
+  const maxPreco = Math.max(...lotesData.map(r => gf(r,'Masculino','preco_masc','preco_m'))) || 7200;
+  container.innerHTML = lotesData.map((r, i) => {
+    const pm = gf(r,'Masculino','preco_masc','preco_m');
+    const pf = gf(r,'Feminino','preco_fem','preco_f');
+    const nome = nomes[i] || gfStr(r,'lote','Lote');
+    const cor = cores[i] || '#888';
+    const pct = Math.round(pm/maxPreco*90);
+    return `<div class="lote-row">
+      <div class="lote-dot" style="background:${cor}"></div>
+      <div class="lote-name">${nome}</div>
+      <div class="bar-track" style="background:var(--surface3);flex:1"><div class="bar-fill" style="width:${pct}%;background:${cor}"></div></div>
+      <div class="lote-price">${fmtFull(pm)}/${fmtFull(pf)}</div>
+    </div>`;
+  }).join('');
+}
+
+function updateLotesTable(lotesData, qtdTotal, receitaObjTotal, tm) {
+  const tbody = document.querySelector('#lotes-table tbody');
+  if (!tbody || lotesData.length === 0) return;
+  tbody.innerHTML = lotesData.map(r => {
+    const pm = gf(r,'Masculino','preco_masc','preco_m');
+    const pf = gf(r,'Feminino','preco_fem','preco_f');
+    const qtd = gf(r,'qtd_meta','Qtd Pacotes','qtd','Qtd');
+    const rec = gf(r,'receita_obj','Receita Obj','Receita Obj.');
+    const loteNome = gfStr(r,'lote','Lote');
+    const aber = gfStr(r,'abertura','Abertura');
+    return `<tr>
+      <td>${loteNome}</td>
+      <td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">${aber}</td>
+      <td style="color:#a78bfa;font-weight:600">${fmtFull(pm)}</td>
+      <td style="color:#f9a8d4">${fmtFull(pf)}</td>
+      <td>${(qtd||0).toLocaleString('pt-BR')}</td>
+      <td style="font-weight:600">${fmtFull(rec)}</td>
+    </tr>`;
+  }).join('') + `<tr class="total-row">
+    <td colspan="4">Total / TM ${fmtFull(tm)}</td>
+    <td>${qtdTotal.toLocaleString('pt-BR')}</td>
+    <td style="color:var(--green)">${fmtM(receitaObjTotal)}</td>
+  </tr>`;
+}
+
+function updatePatrosTable(patros) {
+  const tbody = document.getElementById('patros-table-body');
+  if (!tbody) return;
+  const filtered = patros.filter(r => r.patro_marca && !(r.patro_marca||'').toString().toUpperCase().includes('TOTAL'));
+  if (filtered.length === 0) return;
+
+  const statusClass = (s) => {
+    if (!s) return 'pill-orange';
+    const sl = s.toLowerCase();
+    if (sl.includes('fechado')) return 'pill-green';
+    if (sl.includes('declinado')) return 'pill-red';
+    return 'pill-orange';
+  };
+
+  tbody.innerHTML = filtered.map(r => `
+    <tr>
+      <td style="font-weight:${(r.patro_status||'').toLowerCase().includes('fechado')?'600':'400'}">${r.patro_marca||'—'}</td>
+      <td style="color:var(--text3)">${r.patro_cota||'—'}</td>
+      <td>${fmtM(r.patro_valor_orc)}</td>
+      <td style="color:var(--text3)">${fmtM(r.patro_recebido||0)}</td>
+      <td>${fmtM(r.patro_saldo||r.patro_valor_orc)}</td>
+      <td><span class="pill ${statusClass(r.patro_status)}">${r.patro_status||'—'}</span></td>
+    </tr>
+  `).join('');
+
+  const followup = document.getElementById('patros-followup');
+  if (followup) {
+    followup.innerHTML = filtered.slice(0,7).map(r => `
+      <div class="patro-row">
+        <span style="font-size:${(r.patro_status||'').toLowerCase().includes('fechado')?'13':'12'}px;font-weight:${(r.patro_status||'').toLowerCase().includes('fechado')?'600':'400'}">${r.patro_marca}</span>
+        <span class="pill ${statusClass(r.patro_status)}">${r.patro_status} ${fmtM(r.patro_valor_orc)}</span>
+      </div>
+    `).join('');
+  }
+}
+
+function setStatus(msg, type) {
+  const el = document.getElementById('sync-status');
+  el.textContent = msg;
+  el.className = 'sync-status ' + (type||'');
+}
+
+function showLoading(msg) {
+  document.getElementById('loading-text').textContent = msg;
+  document.getElementById('loading').classList.add('show');
+}
+
+function hideLoading() {
+  document.getElementById('loading').classList.remove('show');
+}
+
+function goPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+refreshData();
+</script>
+</body>
+</html>
