@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Let's Pipa 2026 — Análise 2027</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════
+   DESIGN SYSTEM — idêntico ao letspipa_dashboard.html
+   ═══════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --orange:    #E8531A;
+  --orange-dk: #c44315;
+  --orange-lt: #f06030;
+  --bg:        #111118;
+  --bg2:       #1c1c26;
+  --bg3:       #252535;
+  --card:      #1e1e2c;
+  --border:    #2e2e42;
+  --border2:   #3a3a52;
+  --white:     #f0f0f5;
+  --muted:     #8888a8;
+  --muted2:    #5a5a78;
+  --green:     #2ecc71;
+  --green-dk:  #27ae60;
+  --red:       #e74c3c;
+  --yellow:    #f39c12;
+  --blue:      #3498db;
+  --purple:    #9b59b6;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--white);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--orange);
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+.header-left { display: flex; align-items: center; gap: 14px; }
+
+.logo-badge {
+  width: 38px; height: 38px;
+  background: rgba(0,0,0,0.25);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -0.5px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.header-title { color: #fff; }
+.header-title h1 {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.header-title p {
+  font-size: 11px;
+  opacity: 0.75;
+  font-weight: 400;
+}
+
+/* ── NAV ── */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.nav-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  background: transparent;
+  color: rgba(255,255,255,0.85);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+.nav-btn:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.6);
+  color: #fff;
+}
+.nav-btn.active {
+  background: rgba(0,0,0,0.25);
+  border-color: #fff;
+  color: #fff;
+  font-weight: 600;
+}
+.dot-status {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  margin-left: 4px;
+  box-shadow: 0 0 6px var(--green);
+}
+
+/* ── SUBBAR ── */
+.subbar {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+}
+.subbar-label { color: var(--muted); font-weight: 500; flex-shrink: 0; }
+.subbar-info { color: var(--white); font-weight: 600; }
+.subbar-sep { color: var(--border2); }
+.subbar-right { margin-left: auto; color: var(--muted); }
+.subbar-right strong { color: var(--green); }
+
+/* ── LAYOUT ── */
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* ── HERO BLOCK ── */
+.hero-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-block::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--orange);
+  border-radius: 4px 0 0 4px;
+}
+.hero-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 8px;
+}
+.hero-title {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--white);
+  margin-bottom: 10px;
+  letter-spacing: -1px;
+}
+.hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.hero-meta span { display: flex; align-items: center; gap: 5px; }
+.hero-meta strong { color: var(--white); }
+
+/* ── ABERTURA BANNER ── */
+.banner-abertura {
+  background: linear-gradient(135deg, #1a1200 0%, #2a1e00 100%);
+  border: 1px solid #5a3a00;
+  border-radius: 12px;
+  padding: 18px 24px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.banner-icon { font-size: 26px; flex-shrink: 0; }
+.banner-text h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--yellow);
+  margin-bottom: 3px;
+}
+.banner-text p { font-size: 12px; color: var(--muted); }
+.countdown-pill {
+  margin-left: auto;
+  background: var(--orange);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  padding: 10px 18px;
+  border-radius: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── KPI GRID ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  transition: border-color .15s;
+}
+.kpi-card:hover { border-color: var(--border2); }
+.kpi-card.kpi-orange { border-color: rgba(232,83,26,0.4); }
+.kpi-card.kpi-green  { border-color: rgba(46,204,113,0.3); }
+
+.kpi-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.kpi-value {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 6px;
+  color: var(--white);
+}
+.kpi-value.orange { color: var(--orange-lt); }
+.kpi-value.green  { color: var(--green); }
+.kpi-sub {
+  font-size: 11px;
+  color: var(--muted);
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.tag-orange { background: rgba(232,83,26,.15); color: var(--orange-lt); }
+.tag-green  { background: rgba(46,204,113,.12); color: var(--green); }
+.tag-yellow { background: rgba(243,156,18,.12); color: var(--yellow); }
+.tag-blue   { background: rgba(52,152,219,.12); color: var(--blue); }
+.tag-red    { background: rgba(231,76,60,.12);  color: var(--red); }
+
+/* ── SECTION ── */
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── GRID LAYOUTS ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px; }
+.grid-full { margin-bottom: 20px; }
+
+/* ── CARD ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 22px;
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.card-title .subtitle {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+/* ── CHART ── */
+.chart-wrap { position: relative; height: 240px; }
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.chart-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.leg-line {
+  width: 20px; height: 2.5px;
+  border-radius: 2px;
+}
+
+/* ── SHOWS TABLE ── */
+.shows-list { display: flex; flex-direction: column; gap: 0; }
+.show-row {
+  display: flex;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 10px;
+}
+.show-row:last-child { border: none; }
+.show-rank {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted2);
+  width: 16px;
+  flex-shrink: 0;
+}
+.show-info { flex: 1; min-width: 0; }
+.show-name {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.show-date { font-size: 10px; color: var(--muted); }
+.show-bar-wrap { display: flex; align-items: center; gap: 8px; width: 120px; flex-shrink: 0; }
+.show-bar-bg { flex: 1; height: 3px; background: var(--bg3); border-radius: 2px; overflow: hidden; }
+.show-bar-fill { height: 100%; background: var(--orange); border-radius: 2px; }
+.show-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--orange-lt);
+  min-width: 30px;
+  text-align: right;
+}
+
+/* ── STAT TABLE ── */
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  gap: 8px;
+}
+.stat-row:last-child { border: none; }
+.stat-key { color: var(--muted); }
+.stat-val { font-weight: 600; color: var(--white); text-align: right; }
+
+/* ── MARCOS LIST ── */
+.marco-item {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  align-items: flex-start;
+}
+.marco-item:last-child { border: none; }
+.marco-icon { flex-shrink: 0; }
+.marco-text { color: var(--muted); line-height: 1.4; }
+.marco-text strong { color: var(--white); }
+
+/* ── IA BLOCK ── */
+.ia-block {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px 22px;
+  margin-bottom: 20px;
+}
+.ia-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ia-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.ia-spark { color: var(--orange); font-size: 16px; }
+.ia-text {
+  background: var(--bg3);
+  border-left: 3px solid var(--orange);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+  font-size: 13px;
+  line-height: 1.75;
+  color: #ccc;
+  min-height: 72px;
+}
+.ia-text.idle { color: var(--muted); font-style: italic; }
+.btn-ia {
+  background: var(--orange);
+  color: #fff;
+  border: none;
+  padding: 9px 18px;
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background .15s;
+  white-space: nowrap;
+}
+.btn-ia:hover { background: var(--orange-dk); }
+.btn-ia:disabled { opacity: .45; cursor: not-allowed; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .kpi-row { grid-template-columns: repeat(3, 1fr); }
+  .grid-3  { grid-template-columns: 1fr; }
+}
+@media (max-width: 800px) {
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+  .grid-2  { grid-template-columns: 1fr; }
+  .nav-btn span { display: none; }
+  .container { padding: 14px; }
+}
+@media (max-width: 480px) {
+  .kpi-row { grid-template-columns: 1fr; }
+  .hero-title { font-size: 24px; }
+  .countdown-pill { font-size: 14px; padding: 8px 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     HEADER — idêntico ao dashboard principal
+     ══════════════════════════════════════════ -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo-badge">LP</div>
+    <div class="header-title">
+      <h1>Let's Pipa 2026 — Dashboard Financeiro</h1>
+      <p>Réveillon · Tibau do Sul, RN · 27–31/Dez</p>
+    </div>
+  </div>
+  <nav class="nav">
+    <a class="nav-btn" href="letspipa_dashboard.html">Macro</a>
+    <a class="nav-btn" href="letspipa_dashboard.html#receitas">Receitas</a>
+    <a class="nav-btn" href="letspipa_dashboard.html#custos">Custos</a>
+    <a class="nav-btn" href="letspipa_dashboard.html#dre">DRE</a>
+    <a class="nav-btn" href="letspipa_dashboard.html#patrocinios">Patrocínios</a>
+    <a class="nav-btn active" href="#">Análise 2027</a>
+    <div class="dot-status" id="dot-status" title="Vendas não abertas"></div>
+  </nav>
+</header>
+
+<!-- SUB BAR -->
+<div class="subbar">
+  <span class="subbar-label">Evento:</span>
+  <span class="subbar-info">Let's Pipa 2027 · 27/12/2026</span>
+  <span class="subbar-sep">|</span>
+  <span class="subbar-label">Vendas:</span>
+  <span class="subbar-info" id="sub-vendas">—</span>
+  <span class="subbar-sep">|</span>
+  <span class="subbar-label">Dias para o evento:</span>
+  <span class="subbar-info" id="sub-dias">—</span>
+  <div class="subbar-right">
+    Atualizado <strong id="sub-ts">agora</strong>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CONTEÚDO
+     ══════════════════════════════════════════ -->
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero-block">
+    <div class="hero-eyebrow">Análise de Vendas — Let's Pipa</div>
+    <div class="hero-title">Análise 2027</div>
+    <div class="hero-meta">
+      <span>📅 Evento: <strong>27 dez 2026</strong></span>
+      <span>⏳ <strong id="hero-dias">—</strong> dias até o evento</span>
+      <span>🎟 Abertura de vendas: <strong>13/05/2026</strong></span>
+      <span id="hero-status-wrap"></span>
+    </div>
+  </div>
+
+  <!-- BANNER PRÉ-VENDA (some quando vendas abrirem) -->
+  <div class="banner-abertura" id="banner-pre">
+    <div class="banner-icon">🚀</div>
+    <div class="banner-text">
+      <h3>Vendas abertas em <span id="banner-data">13/05/2026</span></h3>
+      <p>O baseline completo do Let's Pipa 2026 está disponível abaixo para comparação.</p>
+    </div>
+    <div class="countdown-pill" id="banner-countdown">—</div>
+  </div>
+
+  <!-- KPIs 2027 (aparece quando vendas abrirem) -->
+  <div id="kpis-2027" style="display:none">
+    <div class="section-label">Vendas 2027 — tempo real</div>
+    <div class="kpi-row" id="kpi-row-2027">
+      <div class="kpi-card kpi-orange">
+        <div class="kpi-label">Ingressos Vendidos</div>
+        <div class="kpi-value orange" id="k27-ing">—</div>
+        <div class="kpi-sub" id="k27-ing-sub">—</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Faturamento</div>
+        <div class="kpi-value" id="k27-fat">—</div>
+        <div class="kpi-sub" id="k27-fat-sub">—</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Pacotes Vendidos</div>
+        <div class="kpi-value" id="k27-pac">—</div>
+        <div class="kpi-sub"><span class="tag tag-orange">Meta: 2.500</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Avulsos Vendidos</div>
+        <div class="kpi-value" id="k27-av">—</div>
+        <div class="kpi-sub"><span class="tag tag-blue">Meta: 500/dia</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Ticket Médio</div>
+        <div class="kpi-value" id="k27-tm">—</div>
+        <div class="kpi-sub" id="k27-tm-sub">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANÁLISE IA -->
+  <div class="ia-block">
+    <div class="ia-header">
+      <div class="ia-title">
+        <span class="ia-spark">✦</span>
+        Análise do momento
+      </div>
+      <button class="btn-ia" id="btn-ia" onclick="gerarAnalise()">
+        <span>✦</span> Gerar análise com IA
+      </button>
+    </div>
+    <div class="ia-text idle" id="ia-text">
+      Clique em "Gerar análise" para um panorama inteligente da situação atual comparando 2027 com o histórico do Let's Pipa 2026.
+    </div>
+  </div>
+
+  <!-- KPIs BASELINE 2026 -->
+  <div class="section-label">Baseline 2026 — resultado final (sem cortesias/VIP)</div>
+  <div class="kpi-row" style="margin-bottom:20px">
+    <div class="kpi-card">
+      <div class="kpi-label">Total Ingressos</div>
+      <div class="kpi-value">3.549</div>
+      <div class="kpi-sub">1.591 pacotes · 1.958 avulsos</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Faturamento Total</div>
+      <div class="kpi-value">R$ 10,4M</div>
+      <div class="kpi-sub">R$ 7,4M pac + R$ 3,0M avulsos</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Ticket Médio Pacote</div>
+      <div class="kpi-value">R$ 4.642</div>
+      <div class="kpi-sub"><span class="tag tag-orange">Referência 2027</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Ticket Médio Avulso</div>
+      <div class="kpi-value">R$ 1.542</div>
+      <div class="kpi-sub">por ingresso vendido</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Ticket Médio Geral</div>
+      <div class="kpi-value">R$ 2.932</div>
+      <div class="kpi-sub">ponderado total</div>
+    </div>
+  </div>
+
+  <!-- GRÁFICOS -->
+  <div class="grid-3">
+    <!-- Curva Pacotes -->
+    <div class="card">
+      <div class="card-title">
+        📦 Curva Acumulada — Pacotes
+        <span class="subtitle">dias desde abertura de vendas</span>
+      </div>
+      <div class="chart-wrap"><canvas id="chart-pac"></canvas></div>
+      <div class="chart-legend">
+        <div class="chart-legend-item">
+          <div class="leg-line" style="background:#4a4a6a"></div>
+          2026 (baseline)
+        </div>
+        <div class="chart-legend-item">
+          <div class="leg-line" style="background:var(--orange)"></div>
+          2027 (ao vivo)
+        </div>
+        <div class="chart-legend-item">
+          <div class="leg-line" style="background:rgba(232,83,26,.3);border-top:2px dashed rgba(232,83,26,.3);height:0"></div>
+          Meta 2.500
+        </div>
+      </div>
+    </div>
+
+    <!-- Shows 2026 -->
+    <div class="card">
+      <div class="card-title">🎵 Shows Avulsos 2026</div>
+      <div class="shows-list" id="shows-list"></div>
+    </div>
+  </div>
+
+  <!-- Curva Avulsos FULL -->
+  <div class="grid-full">
+    <div class="card">
+      <div class="card-title">
+        🎟 Curva Acumulada — Avulsos
+        <span class="subtitle">dias desde abertura de vendas</span>
+      </div>
+      <div class="chart-wrap"><canvas id="chart-av"></canvas></div>
+      <div class="chart-legend">
+        <div class="chart-legend-item">
+          <div class="leg-line" style="background:#4a4a6a"></div>
+          2026 (baseline)
+        </div>
+        <div class="chart-legend-item">
+          <div class="leg-line" style="background:var(--orange)"></div>
+          2027 (ao vivo)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Marcos + Stats -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">🏁 Marcos do Let's Pipa 2026</div>
+      <div id="marcos"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Estatísticas 2026</div>
+      <div id="stats"></div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ══════════════════════════════════════════
+     SCRIPTS
+     ══════════════════════════════════════════ -->
+<script>
+// ────────────────────────────────────────────
+// DADOS 2026 COMPRIMIDOS
+// ────────────────────────────────────────────
+const ABERTURA_2026 = new Date('2025-04-10');
+const ABERTURA_2027 = new Date('2026-05-13');
+const EVENTO_2027   = new Date('2026-12-27');
+
+// [dia_relativo, acumulado] — série pacotes 2026
+const S26_PAC = [[0,8],[1,9],[2,26],[3,55],[4,63],[5,74],[6,77],[9,83],[10,85],[12,93],[14,96],[15,98],[16,99],[17,100],[18,102],[19,103],[20,105],[22,107],[24,108],[25,120],[26,138],[27,161],[28,170],[29,204],[30,208],[31,214],[32,229],[33,244],[34,354],[35,364],[36,365],[37,367],[38,372],[39,376],[40,383],[41,405],[42,409],[43,413],[50,414],[52,415],[53,419],[54,426],[55,575],[56,594],[57,601],[59,602],[60,608],[61,617],[62,620],[63,625],[64,629],[65,630],[66,632],[67,634],[68,636],[69,638],[70,642],[71,643],[74,649],[75,655],[76,658],[77,661],[78,667],[80,668],[81,670],[82,673],[83,674],[84,676],[85,678],[86,679],[88,692],[89,699],[90,700],[91,704],[92,706],[93,707],[95,711],[96,715],[97,719],[98,722],[99,729],[100,730],[102,732],[103,736],[104,739],[105,740],[106,743],[108,744],[109,748],[110,753],[111,754],[112,764],[114,765],[116,769],[117,775],[118,828],[119,869],[120,874],[124,875],[125,876],[126,877],[128,878],[130,879],[131,883],[132,885],[133,889],[134,890],[135,891],[136,893],[138,896],[139,903],[140,906],[141,910],[142,913],[143,918],[144,923],[145,928],[147,932],[148,954],[149,959],[150,963],[151,965],[152,979],[153,987],[154,997],[155,1006],[156,1010],[157,1012],[158,1022],[159,1035],[160,1080],[161,1129],[162,1139],[164,1140],[165,1147],[166,1149],[167,1160],[168,1168],[169,1171],[171,1179],[172,1183],[173,1189],[174,1193],[175,1194],[176,1196],[177,1200],[178,1201],[179,1207],[180,1211],[181,1221],[182,1222],[183,1236],[184,1238],[187,1244],[188,1253],[189,1264],[190,1273],[191,1278],[192,1281],[193,1290],[194,1301],[195,1319],[196,1331],[197,1333],[200,1338],[201,1348],[202,1376],[203,1378],[204,1385],[205,1386],[206,1387],[207,1396],[208,1399],[209,1401],[210,1411],[211,1415],[213,1417],[214,1418],[215,1427],[216,1431],[217,1432],[218,1436],[219,1438],[220,1443],[221,1446],[222,1448],[223,1455],[224,1456],[228,1463],[229,1465],[230,1467],[231,1468],[233,1469],[235,1472],[236,1477],[237,1490],[238,1492],[239,1494],[242,1497],[243,1501],[244,1507],[245,1509],[246,1510],[247,1515],[249,1517],[250,1529],[251,1534],[252,1536],[253,1540],[254,1543],[255,1544],[256,1549],[257,1552],[259,1557],[260,1573],[261,1588],[262,1589],[263,1590],[268,1591]];
+
+// série avulsos 2026
+const S26_AV = [[174,1],[179,27],[180,32],[181,468],[182,495],[183,511],[184,520],[185,521],[186,526],[187,548],[188,568],[189,572],[190,577],[191,580],[192,582],[193,590],[194,605],[195,627],[196,638],[197,649],[198,652],[199,653],[200,662],[201,678],[202,694],[203,701],[204,715],[205,728],[206,729],[207,743],[208,756],[209,782],[210,840],[211,841],[212,842],[213,849],[214,851],[215,856],[216,874],[217,882],[218,891],[219,895],[220,898],[221,907],[222,923],[223,927],[226,935],[227,943],[228,958],[229,968],[230,970],[231,981],[232,992],[233,994],[234,997],[235,1005],[236,1015],[237,1033],[238,1047],[239,1055],[240,1057],[241,1062],[242,1066],[243,1082],[244,1095],[245,1133],[246,1177],[247,1197],[248,1205],[249,1228],[250,1239],[251,1268],[252,1283],[253,1321],[254,1340],[255,1358],[256,1369],[257,1400],[258,1434],[259,1457],[260,1516],[261,1590],[262,1674],[263,1722],[264,1800],[265,1852],[266,1874],[267,1950],[268,1958]];
+
+const SHOWS = [
+  {n:'DENNIS E MAZ',   d:'31/12', v:518},
+  {n:'FELIPE AMORIM',  d:'02/01', v:597},
+  {n:'BLACK COFFEE',   d:'30/12', v:433},
+  {n:'LÉO FOGUETE',    d:'28/12', v:170},
+  {n:'LÉO SANTANA',    d:'29/12', v:150},
+  {n:'LUAN SANTANA',   d:'27/12', v:90},
+];
+
+// ────────────────────────────────────────────
+// UTILS
+// ────────────────────────────────────────────
+const diffDias = (a, b) => Math.round((b - a) / 86400000);
+const fmtR = v => {
+  if (v >= 1e6) return 'R$ ' + (v/1e6).toFixed(1).replace('.',',') + 'M';
+  if (v >= 1e3) return 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+  return 'R$ ' + v;
+};
+const fmtFull = v => 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+
+function expandSerie(serie, maxDia) {
+  const arr = new Array(maxDia + 1).fill(null);
+  let prev = null;
+  for (let d = 0; d <= maxDia; d++) {
+    const pt = serie.find(([dd]) => dd === d);
+    if (pt) prev = pt[1];
+    arr[d] = prev;
+  }
+  return arr;
+}
+
+// ────────────────────────────────────────────
+// SETUP UI
+// ────────────────────────────────────────────
+function setup() {
+  const now = new Date();
+  const ts = now.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  document.getElementById('sub-ts').textContent = ts;
+
+  const diasEvento = diffDias(now, EVENTO_2027);
+  const diasAbertura = diffDias(now, ABERTURA_2027);
+  const vendasAbertas = diasAbertura >= 0;
+
+  // Header status dot
+  const dot = document.getElementById('dot-status');
+  dot.style.background = vendasAbertas ? '#2ecc71' : '#e74c3c';
+  dot.title = vendasAbertas ? 'Vendas abertas' : 'Vendas não abertas';
+
+  // Subbar
+  document.getElementById('sub-vendas').textContent = vendasAbertas
+    ? `🟢 Abertas há ${diasAbertura} dias`
+    : `🔴 Abre em ${-diasAbertura} dias`;
+  document.getElementById('sub-dias').textContent = diasEvento > 0
+    ? `${diasEvento} dias`
+    : 'Evento em andamento!';
+
+  // Hero
+  document.getElementById('hero-dias').textContent = diasEvento > 0 ? diasEvento : '—';
+
+  // Banner / KPIs 2027
+  if (vendasAbertas) {
+    document.getElementById('banner-pre').style.display = 'none';
+    document.getElementById('kpis-2027').style.display = 'block';
+    carregarDados2027(diasAbertura);
+  } else {
+    const d = -diasAbertura;
+    document.getElementById('banner-countdown').textContent = `Abre em ${d} dia${d!==1?'s':''}`;
+  }
+
+  renderShows();
+  renderMarcos();
+  renderStats();
+  buildCharts(vendasAbertas ? diasAbertura : 0);
+}
+
+// ────────────────────────────────────────────
+// SHOWS
+// ────────────────────────────────────────────
+function renderShows() {
+  const max = Math.max(...SHOWS.map(s => s.v));
+  const el = document.getElementById('shows-list');
+  SHOWS.forEach((s, i) => {
+    const pct = (s.v / max * 100).toFixed(0);
+    el.innerHTML += `
+      <div class="show-row">
+        <span class="show-rank">#${i+1}</span>
+        <div class="show-info">
+          <div class="show-name">${s.n}</div>
+          <div class="show-date">${s.d}</div>
+        </div>
+        <div class="show-bar-wrap">
+          <div class="show-bar-bg">
+            <div class="show-bar-fill" style="width:${pct}%"></div>
+          </div>
+          <span class="show-num">${s.v}</span>
+        </div>
+      </div>`;
+  });
+}
+
+// ────────────────────────────────────────────
+// MARCOS
+// ────────────────────────────────────────────
+function renderMarcos() {
+  const items = [
+    ['🚀', 'Abertura em <strong>10/04/2025</strong> — 8 ingressos no 1º dia'],
+    ['🔥', 'Pico de lançamento: <strong>14/05 — 110 pacotes</strong> (R$ 471k em um dia)'],
+    ['⚡', '2º grande pico: <strong>04/06 — 149 pacotes</strong> (R$ 677k)'],
+    ['🎯', '<strong>1.000 pacotes</strong> atingidos em agosto/2025 (dia 120)'],
+    ['🏆', '<strong>1.500 pacotes</strong> atingidos em novembro/2025 (dia 212)'],
+    ['🎪', 'Avulsos abertos em outubro/2025 — <strong>436 ingressos no dia do lançamento</strong>'],
+    ['🎉', 'Fechamento: <strong>1.591 pac + 1.958 avulsos = 3.549 total</strong>'],
+  ];
+  const el = document.getElementById('marcos');
+  items.forEach(([icon, txt]) => {
+    el.innerHTML += `<div class="marco-item"><span class="marco-icon">${icon}</span><span class="marco-text">${txt}</span></div>`;
+  });
+}
+
+// ────────────────────────────────────────────
+// STATS
+// ────────────────────────────────────────────
+function renderStats() {
+  const rows = [
+    ['Pacotes vendidos',      '1.591'],
+    ['Faturamento pacotes',   'R$ 7.384.700'],
+    ['Ticket médio pacote',   'R$ 4.642'],
+    ['Avulsos vendidos',      '1.958'],
+    ['Faturamento avulsos',   'R$ 3.020.150'],
+    ['Ticket médio avulso',   'R$ 1.542'],
+    ['Dias de pré-venda',     '263 dias'],
+    ['Pico vendas/dia',       '436 avulsos (08/10)'],
+    ['Abertura vendas',       '10/04/2025'],
+    ['Último ingresso',       '03/01/2026'],
+  ];
+  const el = document.getElementById('stats');
+  rows.forEach(([k, v]) => {
+    el.innerHTML += `<div class="stat-row"><span class="stat-key">${k}</span><span class="stat-val">${v}</span></div>`;
+  });
+}
+
+// ────────────────────────────────────────────
+// GRÁFICOS
+// ────────────────────────────────────────────
+function buildCharts(diaAtual2027 = 0) {
+  const MAX = 270;
+  const labels = Array.from({length: MAX + 1}, (_, i) => i);
+  const pac26 = expandSerie(S26_PAC, MAX);
+  const av26  = expandSerie(S26_AV,  MAX);
+
+  const commonOpts = {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 700, easing: 'easeOutQuart' },
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1a1a2a',
+        borderColor: '#3a3a52',
+        borderWidth: 1,
+        titleColor: '#8888a8',
+        bodyColor: '#f0f0f5',
+        padding: 10,
+        callbacks: {
+          title: ctx => `Dia ${ctx[0].label}`,
+          label: ctx => {
+            const v = ctx.parsed.y;
+            return v != null ? ` ${ctx.dataset.label}: ${v.toLocaleString('pt-BR')}` : '';
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: '#5a5a78',
+          maxTicksLimit: 12,
+          font: { size: 10 }
+        },
+        grid: { color: 'rgba(255,255,255,0.04)' }
+      },
+      y: {
+        ticks: { color: '#5a5a78', font: { size: 10 } },
+        grid: { color: 'rgba(255,255,255,0.04)' }
+      }
+    }
+  };
+
+  // ── PACOTES ──
+  new Chart(document.getElementById('chart-pac').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: '2026',
+          data: pac26,
+          borderColor: '#4a4a6a',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: false,
+        },
+        {
+          label: '2027',
+          data: new Array(MAX + 1).fill(null), // preenchido quando tiver dados
+          borderColor: '#E8531A',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: false,
+        },
+        {
+          label: 'Meta',
+          data: new Array(MAX + 1).fill(2500),
+          borderColor: 'rgba(232,83,26,0.25)',
+          borderWidth: 1,
+          borderDash: [5, 5],
+          pointRadius: 0,
+          fill: false,
+        }
+      ]
+    },
+    options: commonOpts
+  });
+
+  // ── AVULSOS ──
+  new Chart(document.getElementById('chart-av').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: '2026',
+          data: av26,
+          borderColor: '#4a4a6a',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: false,
+        },
+        {
+          label: '2027',
+          data: new Array(MAX + 1).fill(null),
+          borderColor: '#E8531A',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: false,
+        }
+      ]
+    },
+    options: commonOpts
+  });
+}
+
+// ────────────────────────────────────────────
+// DADOS 2027 (via gviz quando disponível)
+// ────────────────────────────────────────────
+async function carregarDados2027(diaAtual) {
+  // Quando a planilha 2027 existir, preencha o SHEET_ID abaixo
+  // const SHEET_ID = 'SEU_SHEET_ID_2027';
+  // const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Calendario%20de%20Vendas`;
+  // try { ... } catch(e) { console.log('Sheet 2027 ainda sem dados'); }
+  console.log('Aguardando planilha 2027 — atualize o SHEET_ID quando disponível.');
+}
+
+// ────────────────────────────────────────────
+// ANÁLISE IA
+// ────────────────────────────────────────────
+async function gerarAnalise() {
+  const btn = document.getElementById('btn-ia');
+  const el  = document.getElementById('ia-text');
+
+  btn.disabled = true;
+  btn.innerHTML = '<span>✦</span> Gerando...';
+  el.className = 'ia-text idle';
+  el.textContent = 'Analisando dados históricos e situação atual...';
+
+  const now = new Date();
+  const diasAbertura = diffDias(ABERTURA_2027, now);
+  const diasEvento   = diffDias(now, EVENTO_2027);
+  const vendasAbertas = diasAbertura >= 0;
+
+  // Referência 2026 no mesmo ponto temporal
+  const ref26pac = vendasAbertas
+    ? (S26_PAC.find(([d]) => d >= diasAbertura)?.[1] ?? 1591)
+    : null;
+
+  const contexto = vendasAbertas
+    ? `As vendas do Let's Pipa 2027 estão abertas há ${diasAbertura} dias. Faltam ${diasEvento} dias para o evento (27/12/2026). No mesmo ponto do Let's Pipa 2026 (dia ${diasAbertura}), havia ${ref26pac} pacotes vendidos. O total final de 2026 foi: 1.591 pacotes (R$ 7,38M, TM R$ 4.642) e 1.958 avulsos (R$ 3,02M, TM R$ 1.542), totalizando R$ 10,4M. Meta 2027: 2.500 pacotes + 500 avulsos/dia de evento.`
+    : `As vendas do Let's Pipa 2027 ainda NÃO abriram (abertura prevista 13/05/2026, em ${-diasAbertura} dias). Contexto histórico: o Let's Pipa 2026 abriu em 10/04/2025, com 55 pacotes nos 3 primeiros dias e um pico de 110 pacotes no dia 34 (R$ 471k). Total: 1.591 pacotes (R$ 7,38M) + 1.958 avulsos (R$ 3,02M) = R$ 10,4M de receita real de vendas. Meta 2027: 2.500 pacotes e avulsos por dia de evento, evento começa 27/12/2026.`;
+
+  const prompt = `Você é um analista especialista em eventos de réveillon premium no Brasil. Analise a situação atual do Let's Pipa 2027 em 3-4 parágrafos concisos em português. Use os dados reais fornecidos. Seja direto, objetivo, e compare com o benchmark de 2026. Destaque o que está bem, o que precisa de atenção, e dê uma projeção realista.
+
+Contexto atual: ${contexto}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const txt = data.content?.[0]?.text ?? 'Não foi possível gerar análise.';
+    el.className = 'ia-text';
+    el.textContent = txt;
+    btn.innerHTML = '<span>✦</span> Atualizar análise';
+  } catch(e) {
+    el.className = 'ia-text idle';
+    el.textContent = 'Erro de conexão. Verifique e tente novamente.';
+    btn.innerHTML = '<span>✦</span> Tentar novamente';
+  }
+  btn.disabled = false;
+}
+
+// ────────────────────────────────────────────
+// INIT
+// ────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', setup);
+</script>
+</body>
+</html>
